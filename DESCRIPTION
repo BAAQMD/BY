@@ -1,7 +1,7 @@
 Package: BY
 Type: Package
 Title: Computes BY Data
-Version: 2019.11.20
+Version: 2020.01.17
 Author: David Holstius <dholstius@baaqmd.gov>
 Maintainer: David Holstius <dholstius@baaqmd.gov>
 Description: More about what it does (maybe more than one line)
@@ -15,10 +15,10 @@ Depends:
     vartools,
     strtools,
     qtytools,
-    memoise
+    memoise,
+    DataBank
 Suggests: 
     testthat (>= 2.1.0),
-    DataBank,
     BY2015,
     BY2011,
     BY2008,

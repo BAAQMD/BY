@@ -4,7 +4,7 @@
 #' Calculate, Forecast, and Backcast Emissions for Area Sources
 #'
 #' @description
-#' `area_source_projections()` combines throughputs, emission factors, control
+#' `BY_area_source_projections()` combines throughputs, emission factors, control
 #' factors, and growth profiles, multiplying them together. This results in a
 #' set of "grown and controlled" emissions for the given `years`.
 #'
@@ -33,12 +33,12 @@
 #'   - `cf_data`
 #'   - `gpf_data`
 #'
-#' ... then, helpfully, `area_source_projections()` will fill them in for you.
+#' ... then, helpfully, `BY_area_source_projections()` will fill them in for you.
 #' In that case, so that it knows where to look, you will have to supply a base
 #' year, like so:
 #'
 #' ```
-#'     BY(2011) %>% area_source_projections()
+#'     BY(2011) %>% BY_area_source_projections()
 #' ```
 #'
 #' In this case, it's helpful to pass `verbose = TRUE`, so that you'll know
@@ -79,10 +79,10 @@
 #'
 NULL
 
-#' @name area_source_projections
+#' @name BY_area_source_projections
 #' @usage NULL
 #'
-area_source_projections_ <- function (
+BY_area_source_projections_ <- function (
   base_year,
   years = CY(1990:2040),
   tput_data = NULL,
@@ -93,7 +93,7 @@ area_source_projections_ <- function (
   verbose = getOption("verbose")
 ) {
 
-  msg <- function (...) if(isTRUE(verbose)) message("[area_source_projections] ", ...)
+  msg <- function (...) if(isTRUE(verbose)) message("[BY_area_source_projections] ", ...)
 
   if (is.null(tput_data)) {
     msg("tput_data <- DB_area_source_throughputs()")
@@ -110,7 +110,7 @@ area_source_projections_ <- function (
     gf_data <-
       base_year %>%
       DB_growth_profiles(
-        years = elide_year(years),
+        years = years,
         na.rm = na.rm,
         verbose = verbose)
 
@@ -306,10 +306,10 @@ area_source_projections_ <- function (
 
 }
 
-#' @name area_source_projections
+#' @name BY_area_source_projections
 #'
 #' @export
-area_source_projections <-
+BY_area_source_projections <-
   memoise::memoise(
-    area_source_projections_,
+    BY_area_source_projections_,
     cache = memoise::cache_memory())
