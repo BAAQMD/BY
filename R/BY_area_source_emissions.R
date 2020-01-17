@@ -5,21 +5,13 @@ BY_area_source_emissions <- function (
   verbose = getOption("verbose")
 ) {
 
-  yyyy <-
-    as.integer(base_year)
-
-  BY_area_source_projection_data <-
+  BY_area_source_emission_data <-
     base_year %>%
     BY_area_source_projections(
-      years = yyyy,
+      years = CY(elide_year(base_year)),
       ...,
       verbose = verbose)
 
-  single_year_data <-
-    BY_area_source_projection_data %>%
-    filter_years(
-      yyyy)
-
-  return(single_year_data)
+  return(BY_area_source_emission_data)
 
 }
