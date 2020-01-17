@@ -1,0 +1,27 @@
+Package: BY
+Type: Package
+Title: Computes BY Data
+Version: 2019.11.20
+Author: David Holstius <dholstius@baaqmd.gov>
+Maintainer: David Holstius <dholstius@baaqmd.gov>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Depends:
+    funtools,
+    yeartools,
+    vartools,
+    strtools,
+    qtytools,
+    memoise
+Suggests: 
+    testthat (>= 2.1.0),
+    DataBank,
+    BY2015,
+    BY2011,
+    BY2008,
+    BY2005,
+    BY2002
+RoxygenNote: 7.0.0
