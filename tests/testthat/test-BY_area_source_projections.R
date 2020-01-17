@@ -1,4 +1,4 @@
-context("area_source_projections (BY2011)")
+context("BY_area_source_projections (BY2011)")
 
 QA_base_year <- BY(2011)
 
@@ -15,7 +15,7 @@ test_that("manual entry of CY2011 throughput for #283", {
       tput_unit = "millions of ft^3")
 
   projected_data <-
-    area_source_projections_(  # be sure to test the *uncached* variant (w/trailing underscore)
+    BY_area_source_projections_(  # be sure to test the *uncached* variant (w/trailing underscore)
       QA_base_year,
       years = CY(2011, 2030),
       tput_data = tput_data,
@@ -67,14 +67,14 @@ test_that("manual entry of CY2011 throughput for #283", {
 #'-----------------------------------------------------------------------------
 
 #
-# As above, one can supply `area_source_projections()` with explicit
+# As above, one can supply `BY_area_source_projections()` with explicit
 # `tput_data`, `ef_data`, `cf_data`, and/or `gpf_data`, but below
 # we are testing on the default behavior, which is to rely on
 # `DB_area_source_*(base_year, ...)`.
 #
 QA_area_source_projection_data <-
   QA_base_year %>%
-  area_source_projections(
+  BY_area_source_projections(
     verbose = TRUE)
 
 #'-----------------------------------------------------------------------------

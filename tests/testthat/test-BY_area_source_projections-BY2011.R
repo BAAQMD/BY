@@ -1,18 +1,18 @@
-context("area_source_projections (BY2011)")
+context("BY_area_source_projections (BY2011)")
 
 QA_base_year <- BY(2011)
 
 #'-----------------------------------------------------------------------------
 
 #
-# You can supply `area_source_projections` with explicit
+# You can supply `BY_area_source_projections` with explicit
 # `tput_data`, `ef_data`, `cf_data`, and/or `gpf_data`,
 # but here we are relying on the default behavior, which
 # is to rely on `DB_area_source_*()`.
 #
 QA_area_source_projection_data <-
   QA_base_year %>%
-  area_source_projections(
+  BY_area_source_projections(
     verbose = TRUE)
 
 test_that("county-level projections for category #1010, year 2030", {
