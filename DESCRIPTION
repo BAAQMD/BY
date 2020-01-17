@@ -27,3 +27,11 @@ Suggests:
 RoxygenNote: 7.0.0
 URL: https://github.com/BAAQMD/BY
 BugReports: https://github.com/BAAQMD/BY/issues
+Collate: 
+    'BY_area_source_projections.R'
+    'BY_area_source_emissions.R'
+    'deprecated.R'
+    'expand_counties.R'
+    'if_na_then.R'
+    'project_annual_quantities_by.R'
+    'project_annual_throughputs_by.R'

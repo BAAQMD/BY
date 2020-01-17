@@ -2,6 +2,8 @@
 
 export(BY_area_source_emissions)
 export(BY_area_source_projections)
+export(area_source_emissions)
+export(area_source_projections)
 export(project_annual_quantities)
 export(project_annual_throughputs)
 export(project_annual_throughputs_by)
