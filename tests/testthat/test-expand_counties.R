@@ -1,6 +1,9 @@
 context("expand_counties")
 
-test_that("cnty_abbr is `NA`", {
+COUNTY_ABBRS <-
+  c("ALA", "CC", "MAR", "NAP", "SF", "SM", "SNC", "SOL", "SON")
+
+test_that("if cnty_abbr is `NA`, it's expanded to all counties", {
 
   test_data <-
     tibble(
@@ -11,7 +14,7 @@ test_that("cnty_abbr is `NA`", {
   expected <-
     tibble(
       cat_id = 283,
-      cnty_abbr = names(DB_COUNTY_CODES),
+      cnty_abbr = COUNTY_ABBRS,
       gf_qty = 1.01)
 
   test_data %>%
@@ -31,7 +34,7 @@ test_that("cnty_abbr is not present", {
   expected <-
     tibble(
       cat_id = 283,
-      cnty_abbr = names(DB_COUNTY_CODES),
+      cnty_abbr = COUNTY_ABBRS,
       gf_qty = 1.01)
 
   test_data %>%
@@ -41,7 +44,7 @@ test_that("cnty_abbr is not present", {
 
 })
 
-test_that("cnty_abbr is a subset of names(DB_COUNTY_CODES)", {
+test_that("cnty_abbr is a subset of COUNTY_ABBRS", {
 
   test_data <-
     tibble(
@@ -72,8 +75,8 @@ test_that("cnty_abbr is a mix of TOT and county codes", {
 
   expected <-
     tibble(
-      cat_id = c(c(283, 283), rep(99, length(DB_COUNTY_CODES))),
-      cnty_abbr = c("ALA", "CC", names(DB_COUNTY_CODES)),
+      cat_id = c(c(283, 283), rep(99, length(COUNTY_ABBRS))),
+      cnty_abbr = c("ALA", "CC", COUNTY_ABBRS),
       gf_qty = 1.01)
 
   test_data %>%
