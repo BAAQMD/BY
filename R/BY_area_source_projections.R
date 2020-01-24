@@ -280,7 +280,7 @@ BY_area_source_projections_ <- function (
     multiplied_data %>%
     # mutate(
     #   pol_abbr = decode(pol_id, DB_PROJECTED_POLLUTANT_CODES)) %>%
-    select(
+    dplyr::select(
       one_of(names(tput_data)),
       starts_with("pol"),
       one_of(names(ef_data)),

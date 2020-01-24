@@ -37,14 +37,14 @@ project_annual_quantities_by <- function (
     mutate_at(
       vars(value_vars),
       ~ . * gf_qty) %>%
-    select(
+    dplyr::select(
       names(input_data),
       gf_qty)
 
   if (isTRUE(drop)) {
 
     projected_data <-
-      select(
+      dplyr::select(
         projected_data,
         -gf_qty)
 

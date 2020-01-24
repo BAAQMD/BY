@@ -44,7 +44,7 @@ test_that("PM emissions for category #1908", {
     QA_area_source_emission_data %>%
     filter(
       cat_id == 1908L) %>%
-    select(
+    dplyr::select(
       year,
       cat_id,
       cnty_abbr,
