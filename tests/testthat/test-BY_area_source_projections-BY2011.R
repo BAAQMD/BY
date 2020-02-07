@@ -115,6 +115,7 @@ test_that("projected county-level TOG emissions for category #66, CY2003:2011", 
       pol_abbr = "TOG",
       pol_id = 990L,
       ef_qty = 1.34,
+      ef_unit = "lb/tput",
       cf_qty = 0.176,
       ems_qty = c(70.1, 41.6, 14.5, 6.01, 17.3, 33.5, 76.4, 23.4, 20.7),
       ems_unit = "tons/yr")

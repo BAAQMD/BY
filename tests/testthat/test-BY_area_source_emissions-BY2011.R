@@ -14,8 +14,14 @@ test_that("names", {
   QA_area_source_emission_data %>%
     names() %>%
     expect_setequal(
-      c("year", "cat_id", "cnty_abbr", "tput_qty", "tput_unit",
-        "pol_abbr", "pol_id", "ef_qty", "cf_qty", "ems_qty", "ems_unit"))
+      c("year",
+        "cat_id",
+        "cnty_abbr",
+        "tput_qty", "tput_unit",
+        "pol_abbr", "pol_id",
+        "ef_qty", "ef_unit",
+        "cf_qty",
+        "ems_qty", "ems_unit"))
 
 })
 
