@@ -1,7 +1,7 @@
 Package: BY
 Type: Package
 Title: Computes BY Data
-Version: 2020.02.07
+Version: 2021.01.29
 Author: David Holstius <dholstius@baaqmd.gov>
 Maintainer: David Holstius <dholstius@baaqmd.gov>
 Description: More about what it does (maybe more than one line)
@@ -24,7 +24,7 @@ Suggests:
     BY2008,
     BY2005,
     BY2002
-RoxygenNote: 7.0.0
+RoxygenNote: 7.1.1
 URL: https://github.com/BAAQMD/BY
 BugReports: https://github.com/BAAQMD/BY/issues
 Collate: 
