@@ -95,7 +95,7 @@ test_that("projected county-level TOG emissions for category #66, CY2003:2011", 
   #'
   QA_cat_66_projection_data %>%
     convert_emission_units(
-      to = "tons/day") %>%
+      to = "ton/day") %>%
     annual_emissions_by(
       cat_id,
       pol_abbr) %>%
@@ -118,7 +118,7 @@ test_that("projected county-level TOG emissions for category #66, CY2003:2011", 
       ef_unit = "lb/tput",
       cf_qty = 0.176,
       ems_qty = c(70.1, 41.6, 14.5, 6.01, 17.3, 33.5, 76.4, 23.4, 20.7),
-      ems_unit = "tons/yr")
+      ems_unit = "ton/yr")
 
   QA_cat_66_projection_data %>%
     filter(

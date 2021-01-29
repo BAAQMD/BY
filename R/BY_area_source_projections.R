@@ -272,7 +272,7 @@ BY_area_source_projections_ <- function (
       ems_unit = "lbs/yr") %>% # because in DataBank, `ef_qty` is "lbs/tput"
     convert_emission_units(
       from = "lbs/yr",
-      to = "tons/yr")
+      to = "ton/yr")
 
   msg("tidying")
 

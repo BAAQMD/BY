@@ -71,7 +71,7 @@ test_that("PM emissions for category #1908", {
       pol_abbr = "PM",
       pol_id = 1990L,
       ems_qty = c(104, 27.3, 5.99, 6.35, 11.2, 6.13, 65.0, 19.6, 29.1),
-      ems_unit = "tons/yr")
+      ems_unit = "ton/yr")
 
   QA_cat_1908_emission_data %>%
     expect_equal(expected)
