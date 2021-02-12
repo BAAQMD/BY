@@ -83,7 +83,7 @@ NULL
 #' @usage NULL
 #'
 BY_area_source_projections_ <- function (
-  base_year,
+  base_year = NULL,
   years = CY(1990:2040),
   tput_data = NULL,
   ef_data = NULL,
@@ -95,6 +95,9 @@ BY_area_source_projections_ <- function (
 
   msg <- function (...) if(isTRUE(verbose)) message("[BY_area_source_projections] ", ...)
 
+  #
+  # If `tput_data` is NULL, then attempt to fetch it from DataBank.
+  #
   if (is.null(tput_data)) {
     msg("tput_data <- DB_area_source_throughputs()")
     tput_data <-
@@ -104,32 +107,96 @@ BY_area_source_projections_ <- function (
         verbose = verbose)
   }
 
-  if (is.null(gf_data)) {
+  #
+  # Construct `projected_tput_data`.
+  #
+  # If `gf_data` is NULL, and `base_year` is also NULL,
+  # then this will just be identical to `tput_data`,
+  # but with a new column `gf_qty` set equal to 1.
+  #
+  if (is.null(gf_data) && is.null(base_year)) {
 
-    msg("gf_data <- DB_growth_profiles()")
+    projected_tput_data <-
+      mutate(
+        tput_data,
+        gf_qty = 1.00)
+
+  } else {
+
+    #
+    # We have a `base_year`, but `gf_data` is NULL.
+    # So, try to fetch growth profile data from DataBank.
+    #
+    if (is.null(gf_data)) {
+
+      msg("gf_data <- DB_growth_profiles()")
+      gf_data <-
+        DB_growth_profiles(
+          base_year = base_year,
+          years = years,
+          na.rm = na.rm,
+          verbose = verbose)
+
+    }
+
+    # Never bother with any extraneous GFs
     gf_data <-
-      DB_growth_profiles(
-        base_year = base_year,
-        years = years,
-        na.rm = na.rm,
+      semi_join(
+        filter(gf_data, year %in% years),
+        tput_data,
+        by = "cat_id")
+
+    if ("cnty_abbr" %in% names(tput_data))  {
+
+      # In the `tput_data`, when cnty_abbr is present, there should be no cases where it is NA.
+      if (any(is.na(tput_data[["cnty_abbr"]]))) {
+        err_msg <- "you have NAs in `cnty_abbr` (in the data you are trying to project)."
+        stop(err_msg)
+      }
+
+      # In the `gf_data`, however, some (or all) values of `cnty_abbr` might be NA.
+      # The remainder should be specific counties ("ALA", "CC", ... "SON").
+      #
+      # If the column isn't even present in `gf_data`, we'll have to treat
+      # it as though it were all NA. We're here because `cnty_abbr` is present in
+      # `tput_data`, so we'll need something to join against.
+      #
+      gf_data <-
+        gf_data %>%
+        expand_counties(
+          verbose = verbose)
+
+    } else {
+
+      if ("cnty_abbr" %in% names(gf_data)) {
+        err_msg <- "`cnty_abbr` is in your growth data, but not in the data you are trying to project"
+        stop(err_msg)
+      }
+
+    }
+
+    projected_tput_data <-
+      tput_data %>%
+      project_annual_throughputs_by(
+        cat_id,
+        cnty_abbr,
+        using = gf_data,
         verbose = verbose)
 
   }
 
-  gf_data <-
-    semi_join(
-      filter(gf_data, year %in% years),
-      tput_data,
-      by = "cat_id")
 
   if (is.null(cf_data)) {
 
-    if (missing(base_year)) {
+    if (is.null(base_year)) {
 
       cf_data <-
-        select(tput_data, year, cat_id, pol_abbr, any_of("cnty_abbr")) %>%
-        distinct() %>%
-        mutate(cf_qty = 1.00) # assume 100% uncontrolled
+        tibble(
+          year = character(0),
+          cat_id = integer(0),
+          pol_abbr = character(0),
+          pol_id = integer(0),
+          cf_qty = numeric(0))
 
     } else {
 
@@ -156,6 +223,7 @@ BY_area_source_projections_ <- function (
 
   }
 
+  # don't bother with any extraneous CFs
   cf_data <-
     semi_join(
       filter(cf_data, year %in% years),
@@ -183,57 +251,7 @@ BY_area_source_projections_ <- function (
 
   }
 
-  ef_data <-
-    ef_data %>%
-    filter(
-      year %in% years) %>%
-    semi_join(
-      tput_data,
-      by = "cat_id")
-
   msg("projecting throughputs from ", min(years), " to ", max(years))
-
-  if ("cnty_abbr" %in% names(tput_data))  {
-
-    # In the `tput_data`, when cnty_abbr is present, there should be no cases where it is NA.
-    if (any(is.na(tput_data[["cnty_abbr"]]))) {
-      err_msg <- "you have NAs in `cnty_abbr` (in the data you are trying to project)."
-      stop(err_msg)
-    }
-
-    # In the `gf_data`, however, some (or all) values of `cnty_abbr` might be NA.
-    # The remainder should be specific counties ("ALA", "CC", ... "SON").
-    #
-    # If the column isn't even present in `gf_data`, we'll have to treat
-    # it as though it were all NA. We're here because `cnty_abbr` is present in
-    # `tput_data`, so we'll need something to join against.
-    #
-    gf_data <-
-      gf_data %>%
-      expand_counties(
-        verbose = verbose)
-
-    # by_vars <- c("cat_id", "cnty_abbr")
-
-  } else {
-
-    if ("cnty_abbr" %in% names(gf_data)) {
-      err_msg <- "`cnty_abbr` is in your growth data, but not in the data you are trying to project"
-      stop(err_msg)
-    }
-
-    # If we get here, then `cnty_abbr` is not in `tput_data`, nor in `gf_data`.
-    by_vars <- "cat_id"
-
-  }
-
-  projected_tput_data <-
-    tput_data %>%
-    project_annual_throughputs_by(
-      cat_id,
-      cnty_abbr,
-      using = gf_data,
-      verbose = verbose)
 
   # join projected throughput data with emission factors
   joined_data <-
@@ -241,6 +259,15 @@ BY_area_source_projections_ <- function (
     inner_join(
       ef_data,
       by = c("year", "cat_id"))
+
+  # don't bother with any extraneous EFs
+  ef_data <-
+    ef_data %>%
+    filter(
+      year %in% years) %>%
+    semi_join(
+      tput_data,
+      by = "cat_id")
 
   if (nrow(cf_data) > 0) {
 
