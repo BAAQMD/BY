@@ -2,8 +2,8 @@
 % Please edit documentation in R/expand_counties.R
 \name{expand_counties}
 \alias{expand_counties}
-\title{Expand all cases where `cnty_abbr` is not in `cnty_codes`,
-replacing with the full set of county codes.}
+\title{Expand all cases where `cnty_abbr` is either "TOT" or `NA`,
+replacing with the full set of nine county codes.}
 \usage{
 expand_counties(
   input_data,
@@ -13,6 +13,6 @@ expand_counties(
 )
 }
 \description{
-Expand all cases where `cnty_abbr` is not in `cnty_codes`,
-replacing with the full set of county codes.
+Expand all cases where `cnty_abbr` is either "TOT" or `NA`,
+replacing with the full set of nine county codes.
 }

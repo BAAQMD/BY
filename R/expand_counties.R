@@ -1,6 +1,7 @@
-#' Expand all cases where `cnty_abbr` is not in `cnty_codes`,
-#' replacing with the full set of county codes.
+#' Expand all cases where `cnty_abbr` is either "TOT" or `NA`,
+#' replacing with the full set of nine county codes.
 #'
+#' @export
 expand_counties <- function (
   input_data,
   cnty_var = "cnty_abbr",
