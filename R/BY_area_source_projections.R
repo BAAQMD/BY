@@ -98,8 +98,8 @@ BY_area_source_projections_ <- function (
   if (is.null(tput_data)) {
     msg("tput_data <- DB_area_source_throughputs()")
     tput_data <-
-      base_year %>%
       DB_area_source_throughputs(
+        base_year = base_year,
         na.rm = na.rm,
         verbose = verbose)
   }
@@ -108,8 +108,8 @@ BY_area_source_projections_ <- function (
 
     msg("gf_data <- DB_growth_profiles()")
     gf_data <-
-      base_year %>%
       DB_growth_profiles(
+        base_year = base_year,
         years = years,
         na.rm = na.rm,
         verbose = verbose)
@@ -117,41 +117,48 @@ BY_area_source_projections_ <- function (
   }
 
   gf_data <-
-    gf_data %>%
-    filter(
-      year %in% years) %>%
     semi_join(
+      filter(gf_data, year %in% years),
       tput_data,
       by = "cat_id")
 
   if (is.null(cf_data)) {
 
-    msg("legacy_format_cf_data <- DB_control_factors()")
-    legacy_format_cf_data <-
-      base_year %>%
-      DB_control_factors(
-        na.rm = na.rm,
-        verbose = verbose) %>%
-      elide_years(
-        verbose = verbose) %>%
-      semi_join(
-        tput_data,
-        by = "cat_id")
+    if (missing(base_year)) {
 
-    msg("cf_data <- annualize_DB_control_factors(legacy_format_cf_data)")
-    cf_data <-
-      legacy_format_cf_data %>%
-      annualize_DB_control_factors(
-        years = years,
-        verbose = verbose)
+      cf_data <-
+        select(tput_data, year, cat_id, pol_abbr, any_of("cnty_abbr")) %>%
+        distinct() %>%
+        mutate(cf_qty = 1.00) # assume 100% uncontrolled
+
+    } else {
+
+      msg("legacy_format_cf_data <- DB_control_factors()")
+      legacy_format_cf_data <-
+        DB_control_factors(
+          base_year = base_year,
+          na.rm = na.rm,
+          verbose = verbose) %>%
+        elide_years(
+          verbose = verbose) %>%
+        semi_join(
+          tput_data,
+          by = "cat_id")
+
+      msg("cf_data <- annualize_DB_control_factors(legacy_format_cf_data)")
+      cf_data <-
+        legacy_format_cf_data %>%
+        annualize_DB_control_factors(
+          years = years,
+          verbose = verbose)
+
+    }
 
   }
 
   cf_data <-
-    cf_data %>%
-    filter(
-      year %in% years) %>%
     semi_join(
+      filter(cf_data, year %in% years),
       tput_data,
       by = "cat_id")
 
