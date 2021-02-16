@@ -6,7 +6,7 @@ Author: David Holstius <dholstius@baaqmd.gov>
 Maintainer: David Holstius <dholstius@baaqmd.gov>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+License: MIT
 Encoding: UTF-8
 LazyData: true
 Depends:
@@ -19,11 +19,20 @@ Depends:
     DataBank
 Suggests: 
     testthat (>= 2.1.0),
-    BY2015,
     BY2011,
     BY2008,
     BY2005,
     BY2002
+Remotes:
+    github::BAAQMD/funtools,
+    github::BAAQMD/yeartools,
+    github::BAAQMD/vartools,
+    github::BAAQMD/strtools,
+    github::BAAQMD/qtytools,
+    github::BAAQMD/DataBank,
+    github::BAAQMD/BY2011,
+    github::BAAQMD/BY2008,
+    github::BAAQMD/BY2002
 RoxygenNote: 7.1.1
 URL: https://github.com/BAAQMD/BY
 BugReports: https://github.com/BAAQMD/BY/issues
