@@ -1,11 +1,4 @@
-#' @include BY_area_source_projections.R
-
 #' BY_area_source_emissions
-#'
-#' @description `BY_area_source_emissions()` returns results for a single year (the base year).
-#'
-#' @rdname BY_area_source_projections
-#' @usage BY_area_source_emissions(...)
 #'
 #' @export
 BY_area_source_emissions <- function (
