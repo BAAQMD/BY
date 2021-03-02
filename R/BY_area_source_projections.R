@@ -96,6 +96,13 @@ BY_area_source_projections_ <- function (
   msg <- function (...) if(isTRUE(verbose)) message("[BY_area_source_projections] ", ...)
 
   #
+  # Throughout this function, we work with years as "naive" years; that is,
+  # 4-digit years without prefixes (i.e., without timelines like RY or CY).
+  # At the end, we pretend that everything happened on the CY timeline.
+  #
+  years <- elide_year(years, verbose = verbose)
+
+  #
   # If `tput_data` is NULL, then attempt to fetch it from DataBank.
   #
   if (is.null(tput_data)) {
@@ -104,6 +111,8 @@ BY_area_source_projections_ <- function (
       DB_area_source_throughputs(
         base_year = base_year,
         na.rm = na.rm,
+        verbose = verbose) %>%
+      elide_years(
         verbose = verbose)
   }
 
@@ -133,8 +142,9 @@ BY_area_source_projections_ <- function (
       gf_data <-
         DB_growth_profiles(
           base_year = base_year,
-          years = years,
           na.rm = na.rm,
+          verbose = verbose) %>%
+        elide_years(
           verbose = verbose)
 
     }
@@ -162,8 +172,8 @@ BY_area_source_projections_ <- function (
       # `tput_data`, so we'll need something to join against.
       #
       gf_data <-
-        gf_data %>%
         expand_counties(
+          gf_data,
           verbose = verbose)
 
     } else {
@@ -181,6 +191,8 @@ BY_area_source_projections_ <- function (
         cat_id,
         cnty_abbr,
         using = gf_data,
+        verbose = verbose) %>%
+      elide_years(
         verbose = verbose)
 
   }
@@ -217,6 +229,8 @@ BY_area_source_projections_ <- function (
         legacy_format_cf_data %>%
         annualize_DB_control_factors(
           years = years,
+          verbose = verbose) %>%
+        elide_years(
           verbose = verbose)
 
     }
@@ -247,6 +261,8 @@ BY_area_source_projections_ <- function (
       legacy_format_ef_data %>%
       annualize_DB_emission_factors(
         years = years,
+        verbose = verbose) %>%
+      elide_years(
         verbose = verbose)
 
   }
@@ -335,6 +351,12 @@ BY_area_source_projections_ <- function (
         ems_qty > 0)
 
   }
+
+  msg("casting all `year` to CY")
+  tidied_data <-
+    mutate(
+      tidied_data,
+      year = CY(year))
 
   return(tidied_data)
 
