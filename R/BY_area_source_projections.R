@@ -100,6 +100,7 @@ BY_area_source_projections_ <- function (
   # 4-digit years without prefixes (i.e., without timelines like RY or CY).
   # At the end, we pretend that everything happened on the CY timeline.
   #
+  msg("eliding `years`")
   years <- elide_year(years, verbose = verbose)
 
   #
@@ -114,13 +115,13 @@ BY_area_source_projections_ <- function (
         na.rm = na.rm,
         verbose = verbose)
 
-    msg("eliding `year` in tput_data")
-    tput_data <-
-      elide_year(
-        tput_data,
-        verbose = verbose)
-
   }
+
+  msg("eliding `year` in tput_data")
+  tput_data <-
+    elide_year(
+      tput_data,
+      verbose = verbose)
 
   #
   # Construct `projected_tput_data`.
@@ -304,8 +305,6 @@ BY_area_source_projections_ <- function (
 
   }
 
-  msg("projecting throughputs from ", min(years), " to ", max(years))
-
   msg("eliding `year` in `ef_data`")
   ef_data <-
     elide_year(
@@ -334,7 +333,7 @@ BY_area_source_projections_ <- function (
       stop(err_msg)
     }
 
-    msg("joining with control factors")
+    msg("joining with `cf_data` by year, category, and pollutant")
 
     joined_data <-
       joined_data %>%
@@ -354,7 +353,7 @@ BY_area_source_projections_ <- function (
   }
 
   msg("setting `cf_qty` to 1.000 (unabated) wherever is it `NA` (missing)")
-  joined_data <-
+  imputed_data <-
     replace_na(
       joined_data,
       list(cf_qty = 1.000))
@@ -362,7 +361,7 @@ BY_area_source_projections_ <- function (
   msg("calculating: ems_qty = tput_qty x ef_qty x cf_qty")
   multiplied_data <-
     mutate(
-      joined_data,
+      imputed_data,
       ems_qty = tput_qty * ef_qty * cf_qty)
 
   msg("converting from lb/yr to ton/yr")
