@@ -34,8 +34,8 @@ test_that("cnty_abbr is not present", {
   expected <-
     tibble(
       cat_id = 283,
-      cnty_abbr = COUNTY_ABBRS,
-      gf_qty = 1.01)
+      gf_qty = 1.01,
+      cnty_abbr = COUNTY_ABBRS)
 
   test_data %>%
     expand_counties() %>%
