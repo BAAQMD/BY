@@ -1,7 +1,7 @@
 Package: BY
 Type: Package
 Title: Computes BY Data
-Version: 2021.03.23
+Version: 2021.03.23.001
 Author: David Holstius <dholstius@baaqmd.gov>
 Maintainer: David Holstius <dholstius@baaqmd.gov>
 Description: More about what it does (maybe more than one line)
