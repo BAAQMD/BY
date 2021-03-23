@@ -401,6 +401,7 @@ BY_area_source_projections_ <- function (
   msg("casting all elided `year`s to CY")
   tidied_data <-
     tidied_data %>%
+    elide_year() %>%
     mutate(
       year = CY(year)) %>%
     as_tibble()
