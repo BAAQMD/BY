@@ -106,14 +106,20 @@ BY_area_source_projections_ <- function (
   # If `tput_data` is NULL, then attempt to fetch it from DataBank.
   #
   if (is.null(tput_data)) {
+
     msg("tput_data <- DB_area_source_throughputs()")
     tput_data <-
       DB_area_source_throughputs(
         base_year = base_year,
         na.rm = na.rm,
-        verbose = verbose) %>%
-      elide_years(
         verbose = verbose)
+
+    msg("eliding `year` in tput_data")
+    tput_data <-
+      elide_year(
+        tput_data,
+        verbose = verbose)
+
   }
 
   #
@@ -125,10 +131,11 @@ BY_area_source_projections_ <- function (
   #
   if (is.null(gf_data) && is.null(base_year)) {
 
+    msg("projecting `tput_data` as though `gf_qty` is 1.000 everywhere")
     projected_tput_data <-
       mutate(
         tput_data,
-        gf_qty = 1.00)
+        gf_qty = 1.000)
 
   } else {
 
@@ -138,21 +145,26 @@ BY_area_source_projections_ <- function (
     #
     if (is.null(gf_data)) {
 
-      msg("gf_data <- DB_growth_profiles()")
+      msg("`gf_data` <- `DB_growth_profiles(\"", base_year, "\")`")
       gf_data <-
         DB_growth_profiles(
           base_year = base_year,
           na.rm = na.rm,
-          verbose = verbose) %>%
-        elide_years(
           verbose = verbose)
 
     }
 
+    msg("eliding `year` in `gf_data`")
+    gf_data <-
+      elide_year(
+        gf_data,
+        verbose = verbose)
+
     # Never bother with any extraneous GFs
+    msg("dropping any categories from `gf_data` that don't appear in `tput_data`")
     gf_data <-
       semi_join(
-        filter(gf_data, year %in% years),
+        filter_years(gf_data, years),
         tput_data,
         by = "cat_id")
 
@@ -171,6 +183,7 @@ BY_area_source_projections_ <- function (
       # it as though it were all NA. We're here because `cnty_abbr` is present in
       # `tput_data`, so we'll need something to join against.
       #
+      msg("expanding `cnty_abbr` in `gf_data`")
       gf_data <-
         expand_counties(
           gf_data,
@@ -179,21 +192,27 @@ BY_area_source_projections_ <- function (
     } else {
 
       if ("cnty_abbr" %in% names(gf_data)) {
-        err_msg <- "`cnty_abbr` is in your growth data, but not in the data you are trying to project"
+        err_msg <- "`cnty_abbr` is in `gf_data`, but not in `tput_data`"
         stop(err_msg)
       }
 
     }
 
     projected_tput_data <-
-      tput_data %>%
       project_annual_throughputs_by(
+        tput_data,
         cat_id,
         cnty_abbr,
         using = gf_data,
-        verbose = verbose) %>%
-      elide_years(
         verbose = verbose)
+
+    msg("eliding `year` in `projected_tput_data`")
+    projected_tput_data <-
+      elide_year(
+        projected_tput_data,
+        verbose = verbose) %>%
+      filter_years(
+        years)
 
   }
 
@@ -202,6 +221,7 @@ BY_area_source_projections_ <- function (
 
     if (is.null(base_year)) {
 
+      msg("letting `cf_data` be an empty tibble")
       cf_data <-
         tibble(
           year = character(0),
@@ -212,54 +232,71 @@ BY_area_source_projections_ <- function (
 
     } else {
 
-      msg("legacy_format_cf_data <- DB_control_factors()")
+      msg("`legacy_format_cf_data` <- `DB_control_factors(\"", base_year, "\")`")
       legacy_format_cf_data <-
         DB_control_factors(
           base_year = base_year,
           na.rm = na.rm,
-          verbose = verbose) %>%
-        elide_years(
-          verbose = verbose) %>%
+          verbose = verbose)
+
+      msg("dropping any categories from `legacy_format_cf_data` that don't appear in `tput_data`")
+      legacy_format_cf_data <-
         semi_join(
+          legacy_format_cf_data,
           tput_data,
           by = "cat_id")
 
-      msg("cf_data <- annualize_DB_control_factors(legacy_format_cf_data)")
+      msg("`cf_data` <- `annualize_DB_control_factors(legacy_format_cf_data, ...)`")
       cf_data <-
-        legacy_format_cf_data %>%
         annualize_DB_control_factors(
+          legacy_format_cf_data,
           years = years,
-          verbose = verbose) %>%
-        elide_years(
           verbose = verbose)
 
     }
 
   }
 
-  # don't bother with any extraneous CFs
-  cf_data <-
-    semi_join(
-      filter(cf_data, year %in% years),
-      tput_data,
-      by = "cat_id")
+  if (is.data.frame(cf_data) && (nrow(cf_data) > 0)) {
 
-  if (is.null(ef_data)) {
-
-    msg("legacy_format_ef_data <- DB_area_source_emission_factors()")
-    legacy_format_ef_data <-
-      base_year %>%
-      DB_area_source_emission_factors(
-        na.rm = na.rm,
+    msg("eliding `year` in `cf_data`")
+    cf_data <-
+      elide_year(
+        cf_data,
         verbose = verbose) %>%
+      filter_years(
+        years)
+
+    # don't bother with any extraneous CFs
+    msg("dropping any categories from `cf_data` that don't appear in `tput_data`")
+    cf_data <-
       semi_join(
+        cf_data,
         tput_data,
         by = "cat_id")
 
-    msg("ef_data <- annualize_DB_emission_factors(legacy_format_ef_data)")
+  }
+
+  if (is.null(ef_data)) {
+
+    msg("`legacy_format_ef_data` <- `DB_area_source_emission_factors(\"", base_year, "\", ...)`")
+    legacy_format_ef_data <-
+      DB_area_source_emission_factors(
+        base_year,
+        na.rm = na.rm,
+        verbose = verbose)
+
+    msg("dropping any categories from `legacy_format_ef_data` that don't appear in `tput_data`")
+    legacy_format_ef_data <-
+      semi_join(
+        legacy_format_ef_data,
+        tput_data,
+        by = "cat_id")
+
+    msg("`ef_data` <- `annualize_DB_emission_factors(legacy_format_ef_data, ...)`")
     ef_data <-
-      legacy_format_ef_data %>%
       annualize_DB_emission_factors(
+        legacy_format_ef_data,
         years = years,
         verbose = verbose) %>%
       elide_years(
@@ -269,29 +306,33 @@ BY_area_source_projections_ <- function (
 
   msg("projecting throughputs from ", min(years), " to ", max(years))
 
+  msg("eliding `year` in `ef_data`")
+  ef_data <-
+    elide_year(
+      ef_data,
+      verbose = verbose) %>%
+    filter_years(
+      years)
+
   # join projected throughput data with emission factors
   joined_data <-
-    projected_tput_data %>%
     inner_join(
+      projected_tput_data,
       ef_data,
       by = c("year", "cat_id"))
 
-  # don't bother with any extraneous EFs
-  ef_data <-
-    ef_data %>%
-    filter(
-      year %in% years) %>%
-    semi_join(
-      tput_data,
-      by = "cat_id")
-
-  if (nrow(cf_data) > 0) {
+  if (is.data.frame(cf_data) && (nrow(cf_data) > 0)) {
 
     # join again, this time with control factors
     pol_vars <-
       intersect(
         tidyselect::vars_select(names(joined_data), starts_with("pol_")),
         tidyselect::vars_select(names(cf_data), starts_with("pol_")))
+
+    if (any(is.na(pol_vars))) {
+      err_msg("you have `NA` in ", str_or(pol_vars), "; this is unsupported (yet)")
+      stop(err_msg)
+    }
 
     msg("joining with control factors")
 
@@ -306,28 +347,34 @@ BY_area_source_projections_ <- function (
     msg("no control factors; setting `cf_qty` to `NA`")
 
     joined_data <-
-      joined_data %>%
       mutate(
+        joined_data,
         cf_qty = NA_real_)
 
   }
 
+  msg("setting `cf_qty` to 1.000 (unabated) wherever is it `NA` (missing)")
+  joined_data <-
+    replace_na(
+      joined_data,
+      list(cf_qty = 1.000))
+
   msg("calculating: ems_qty = tput_qty x ef_qty x cf_qty")
   multiplied_data <-
-    joined_data %>%
-    replace_na(
-      list(cf_qty = 1.0)) %>%  # default `cf` is 100% (uncontrolled)
     mutate(
-      ems_qty = tput_qty * ef_qty * cf_qty,
-      ems_unit = "lbs/yr") %>% # because in DataBank, `ef_qty` is "lbs/tput"
+      joined_data,
+      ems_qty = tput_qty * ef_qty * cf_qty)
+
+  msg("converting from lb/yr to ton/yr")
+  converted_data <-
+    multiplied_data %>%
+    set_emission_units(
+      "lb/yr") %>% # because in DataBank, `ef_qty` is "lbs/tput"
     convert_emission_units(
-      from = "lbs/yr",
       to = "ton/yr")
 
-  msg("tidying")
-
   tidied_data <-
-    multiplied_data %>%
+    converted_data %>%
     # mutate(
     #   pol_abbr = decode(pol_id, DB_PROJECTED_POLLUTANT_CODES)) %>%
     dplyr::select(
@@ -343,20 +390,20 @@ BY_area_source_projections_ <- function (
 
   if (isTRUE(na.rm)) {
 
-    msg("dropping rows where ems_qty == 0")
-
+    msg("`na.rm` is `TRUE`; so, dropping rows where `ems_qty` is zero")
     tidied_data <-
-      tidied_data %>%
       filter(
+        tidied_data,
         ems_qty > 0)
 
   }
 
-  msg("casting all `year` to CY")
+  msg("casting all elided `year`s to CY")
   tidied_data <-
+    tidied_data %>%
     mutate(
-      tidied_data,
-      year = CY(year))
+      year = CY(year)) %>%
+    as_tibble()
 
   return(tidied_data)
 
